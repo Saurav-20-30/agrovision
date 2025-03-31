@@ -1,7 +1,6 @@
-
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Soil, Leaf, Droplet, ThermometerSun } from "lucide-react";
+import { Flower2, Leaf, Droplet, ThermometerSun } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import NavBar from "@/components/ui/nav-bar";
@@ -63,7 +62,7 @@ const SoilAnalysisPage = () => {
             <CardContent className="p-4">
               <div className="flex items-center gap-3">
                 <div className="bg-primary/10 p-2 rounded-full">
-                  <Soil className="h-5 w-5 text-primary" />
+                  <Flower2 className="h-5 w-5 text-primary" />
                 </div>
                 <div className="flex-1">
                   <h3 className="font-medium">pH Level</h3>
