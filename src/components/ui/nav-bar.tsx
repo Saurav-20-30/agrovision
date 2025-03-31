@@ -2,7 +2,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Leaf, Soil, ChartBar, Settings } from "lucide-react";
+import { Leaf, Sprout, ChartBar, Settings, MessageSquare } from "lucide-react";
 
 const NavBar = () => {
   return (
@@ -16,12 +16,16 @@ const NavBar = () => {
         <span className="text-xs">Scan</span>
       </Link>
       <Link to="/soil" className="flex flex-col items-center gap-1 text-gray-500 hover:text-primary">
-        <Soil className="h-5 w-5" />
+        <Sprout className="h-5 w-5" />
         <span className="text-xs">Soil</span>
       </Link>
       <Link to="/yield" className="flex flex-col items-center gap-1 text-gray-500 hover:text-primary">
         <ChartBar className="h-5 w-5" />
         <span className="text-xs">Yield</span>
+      </Link>
+      <Link to="/chat" className="flex flex-col items-center gap-1 text-gray-500 hover:text-primary">
+        <MessageSquare className="h-5 w-5" />
+        <span className="text-xs">Chat</span>
       </Link>
       <Link to="/settings" className="flex flex-col items-center gap-1 text-gray-500 hover:text-primary">
         <Settings className="h-5 w-5" />

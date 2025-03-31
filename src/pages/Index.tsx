@@ -1,7 +1,7 @@
 
 import React from "react";
 import { Link } from "react-router-dom";
-import { Leaf, Soil, ChartBar, Image } from "lucide-react";
+import { Leaf, Sprout, ChartBar, Image, MessageSquare } from "lucide-react";
 import NavBar from "@/components/ui/nav-bar";
 import Header from "@/components/ui/header";
 import FeatureCard from "@/components/feature-card";
@@ -43,7 +43,7 @@ const Index = () => {
           <FeatureCard 
             title="Soil Analysis" 
             description="Test and improve your soil quality for better growth" 
-            icon={Soil} 
+            icon={Sprout} 
             linkTo="/soil" 
           />
           <FeatureCard 
@@ -57,6 +57,12 @@ const Index = () => {
             description="Monitor and optimize your farm's performance" 
             icon={ChartBar} 
             linkTo="/yield" 
+          />
+          <FeatureCard 
+            title="AI Assistant" 
+            description="Get expert farming advice with our AI chatbot" 
+            icon={MessageSquare} 
+            linkTo="/chat" 
           />
         </div>
       </div>

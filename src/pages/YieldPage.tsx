@@ -1,184 +1,230 @@
 
-import React from "react";
-import { useNavigate } from "react-router-dom";
-import { ChartBar, TrendingUp, ArrowUpRight, ArrowDownRight } from "lucide-react";
-import NavBar from "@/components/ui/nav-bar";
+import React, { useState } from "react";
 import Header from "@/components/ui/header";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import NavBar from "@/components/ui/nav-bar";
+import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { ChartContainer } from "@/components/ui/chart";
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, LineChart, Line, CartesianGrid } from "recharts";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Label } from "@/components/ui/label";
+import { ChartBar, Calculator } from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { useNavigate } from "react-router-dom";
 
-const yieldData = [
-  { month: 'Jan', current: 0, previous: 0 },
-  { month: 'Feb', current: 0, previous: 0 },
-  { month: 'Mar', current: 0, previous: 0 },
-  { month: 'Apr', current: 0, previous: 0 },
-  { month: 'May', current: 0, previous: 0 },
-  { month: 'Jun', current: 0, previous: 0 },
-  { month: 'Jul', current: 30, previous: 25 },
-  { month: 'Aug', current: 90, previous: 75 },
-  { month: 'Sep', current: 85, previous: 90 },
-  { month: 'Oct', current: 0, previous: 0 },
-  { month: 'Nov', current: 0, previous: 0 },
-  { month: 'Dec', current: 0, previous: 0 },
-];
+interface CropData {
+  name: string;
+  plantsPerAcre: number;
+  waterRequirements: string;
+  growthDuration: string;
+  soilTypes: string;
+}
 
-const soilHealthData = [
-  { name: 'Week 1', value: 55 },
-  { name: 'Week 2', value: 58 },
-  { name: 'Week 3', value: 62 },
-  { name: 'Week 4', value: 68 },
-  { name: 'Week 5', value: 72 },
+const crops: CropData[] = [
+  { 
+    name: "Rice", 
+    plantsPerAcre: 175000,
+    waterRequirements: "High",
+    growthDuration: "3-6 months",
+    soilTypes: "Clay or clayey loam"
+  },
+  { 
+    name: "Wheat", 
+    plantsPerAcre: 1000000,
+    waterRequirements: "Medium",
+    growthDuration: "4-5 months",
+    soilTypes: "Loam or clay loam" 
+  },
+  { 
+    name: "Maize (Corn)", 
+    plantsPerAcre: 20000,
+    waterRequirements: "Medium",
+    growthDuration: "3-4 months",
+    soilTypes: "Well-drained loamy" 
+  },
+  { 
+    name: "Cotton", 
+    plantsPerAcre: 40000,
+    waterRequirements: "Medium",
+    growthDuration: "5-6 months",
+    soilTypes: "Well-drained black soils" 
+  },
+  { 
+    name: "Sugarcane", 
+    plantsPerAcre: 15000,
+    waterRequirements: "High",
+    growthDuration: "12-18 months",
+    soilTypes: "Deep, well-drained loamy" 
+  },
+  { 
+    name: "Potato", 
+    plantsPerAcre: 58000,
+    waterRequirements: "Medium",
+    growthDuration: "3-4.5 months",
+    soilTypes: "Sandy loam" 
+  },
+  { 
+    name: "Tomato", 
+    plantsPerAcre: 10000,
+    waterRequirements: "Medium",
+    growthDuration: "3-4 months",
+    soilTypes: "Well-drained loamy" 
+  },
+  { 
+    name: "Onion", 
+    plantsPerAcre: 150000,
+    waterRequirements: "Medium",
+    growthDuration: "3-5 months",
+    soilTypes: "Sandy loam to clay loam" 
+  }
 ];
 
 const YieldPage = () => {
   const navigate = useNavigate();
-  
+  const [area, setArea] = useState("");
+  const [unit, setUnit] = useState("acres");
+  const [selectedCrop, setSelectedCrop] = useState<string | null>(null);
+  const [calculationResult, setCalculationResult] = useState<{
+    totalPlants: number;
+    crop: CropData | null;
+  } | null>(null);
+
+  const handleCalculate = () => {
+    if (!area || !selectedCrop) return;
+
+    const numericArea = parseFloat(area);
+    if (isNaN(numericArea) || numericArea <= 0) return;
+
+    const crop = crops.find(c => c.name === selectedCrop) || null;
+    if (!crop) return;
+
+    // Convert to acres if necessary
+    let areaInAcres = numericArea;
+    if (unit === "hectares") {
+      areaInAcres = numericArea * 2.47105; // 1 hectare = 2.47105 acres
+    } else if (unit === "sqft") {
+      areaInAcres = numericArea / 43560; // 1 acre = 43,560 sq ft
+    } else if (unit === "sqm") {
+      areaInAcres = numericArea / 4046.86; // 1 acre = 4,046.86 sq m
+    }
+
+    const totalPlants = Math.round(crop.plantsPerAcre * areaInAcres);
+    setCalculationResult({ totalPlants, crop });
+  };
+
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
-      <Header 
-        title="Yield Dashboard" 
-        showBackButton 
-        onBackClick={() => navigate(-1)} 
-      />
+      <Header title="Yield Calculator" showBackButton onBackClick={() => navigate("/")} />
       
-      <div className="flex-1 p-4">
-        <div className="mb-4 grid grid-cols-1 gap-4 md:grid-cols-2">
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-base">Current Yield</CardTitle>
-              <CardDescription>Total harvest this season</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="flex items-center">
-                <div className="mr-4">
-                  <div className="text-2xl font-bold">205</div>
-                  <div className="text-xs text-muted-foreground">bushels/acre</div>
-                </div>
-                <div className="flex items-center text-green-500 text-sm font-medium">
-                  <TrendingUp className="mr-1 h-4 w-4" />
-                  12% increase
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-          
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-base">Soil Improvement</CardTitle>
-              <CardDescription>Health score improvement</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="flex items-center">
-                <div className="mr-4">
-                  <div className="text-2xl font-bold">+17%</div>
-                  <div className="text-xs text-muted-foreground">over 5 weeks</div>
-                </div>
-                <div className="flex items-center text-green-500 text-sm font-medium">
-                  <ArrowUpRight className="mr-1 h-4 w-4" />
-                  Positive trend
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-        
-        <Card className="mb-4">
+      <div className="flex-1 overflow-y-auto px-4 py-6 pb-20">
+        <Card className="mb-6">
           <CardHeader>
-            <CardTitle className="text-base">Yield Comparison</CardTitle>
-            <CardDescription>Current vs. Previous Season</CardDescription>
+            <CardTitle className="flex items-center gap-2">
+              <Calculator className="h-5 w-5 text-primary" />
+              Calculate Planting Capacity
+            </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="h-[300px] w-full">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart
-                  data={yieldData}
-                  margin={{ top: 20, right: 30, left: 0, bottom: 20 }}
-                >
-                  <XAxis dataKey="month" />
-                  <YAxis />
-                  <Tooltip />
-                  <Bar dataKey="previous" fill="#90caf9" name="Previous Season" />
-                  <Bar dataKey="current" fill="#00A63D" name="Current Season" />
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
-          </CardContent>
-        </Card>
-        
-        <Card className="mb-4">
-          <CardHeader>
-            <CardTitle className="text-base">Soil Health Trend</CardTitle>
-            <CardDescription>Last 5 weeks</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="h-[200px] w-full">
-              <ResponsiveContainer width="100%" height="100%">
-                <LineChart
-                  data={soilHealthData}
-                  margin={{ top: 20, right: 30, left: 0, bottom: 20 }}
-                >
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="name" />
-                  <YAxis domain={[0, 100]} />
-                  <Tooltip />
-                  <Line 
-                    type="monotone" 
-                    dataKey="value" 
-                    stroke="#00A63D" 
-                    strokeWidth={2}
-                    name="Soil Health Score"
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="area">Land Area</Label>
+                <div className="flex gap-2">
+                  <Input
+                    id="area"
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    placeholder="Enter area"
+                    value={area}
+                    onChange={(e) => setArea(e.target.value)}
+                    className="flex-1"
                   />
-                </LineChart>
-              </ResponsiveContainer>
+                  <Select value={unit} onValueChange={setUnit}>
+                    <SelectTrigger className="w-[120px]">
+                      <SelectValue placeholder="Unit" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="acres">Acres</SelectItem>
+                      <SelectItem value="hectares">Hectares</SelectItem>
+                      <SelectItem value="sqft">Square Feet</SelectItem>
+                      <SelectItem value="sqm">Square Meters</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="crop">Select Crop</Label>
+                <Select value={selectedCrop || ""} onValueChange={setSelectedCrop}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Choose a crop" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {crops.map(crop => (
+                      <SelectItem key={crop.name} value={crop.name}>
+                        {crop.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              
+              <Button 
+                onClick={handleCalculate} 
+                className="w-full"
+                disabled={!area || !selectedCrop}
+              >
+                Calculate
+              </Button>
             </div>
           </CardContent>
         </Card>
         
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base">Insights</CardTitle>
-            <CardDescription>AI-generated recommendations</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-3">
-              <div className="flex items-start gap-2">
-                <ArrowUpRight className="h-4 w-4 text-green-500 mt-0.5" />
-                <div>
-                  <h4 className="text-sm font-medium">Increased nitrogen uptake</h4>
-                  <p className="text-xs text-muted-foreground">
-                    Improved soil health has led to better nutrient absorption
+        {calculationResult && (
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <ChartBar className="h-5 w-5 text-primary" />
+                Calculation Results
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <div className="bg-primary/10 p-4 rounded-lg text-center">
+                  <p className="text-sm text-gray-600">Estimated number of plants for your land:</p>
+                  <p className="text-3xl font-bold text-primary">
+                    {calculationResult.totalPlants.toLocaleString()}
                   </p>
+                  <p className="text-sm font-medium">{calculationResult.crop?.name} plants</p>
                 </div>
+                
+                {calculationResult.crop && (
+                  <div className="space-y-3 mt-4">
+                    <h3 className="font-medium">Crop Information:</h3>
+                    <div className="grid grid-cols-2 gap-2 text-sm">
+                      <div className="bg-gray-100 p-2 rounded">
+                        <p className="text-gray-500">Water Need</p>
+                        <p className="font-medium">{calculationResult.crop.waterRequirements}</p>
+                      </div>
+                      <div className="bg-gray-100 p-2 rounded">
+                        <p className="text-gray-500">Growth Period</p>
+                        <p className="font-medium">{calculationResult.crop.growthDuration}</p>
+                      </div>
+                      <div className="bg-gray-100 p-2 rounded col-span-2">
+                        <p className="text-gray-500">Suitable Soil Types</p>
+                        <p className="font-medium">{calculationResult.crop.soilTypes}</p>
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
-              
-              <div className="flex items-start gap-2">
-                <ArrowDownRight className="h-4 w-4 text-amber-500 mt-0.5" />
-                <div>
-                  <h4 className="text-sm font-medium">September yield drop</h4>
-                  <p className="text-xs text-muted-foreground">
-                    Slightly lower than last year due to early rust detection
-                  </p>
-                </div>
-              </div>
-              
-              <div className="flex items-start gap-2">
-                <ArrowUpRight className="h-4 w-4 text-green-500 mt-0.5" />
-                <div>
-                  <h4 className="text-sm font-medium">Overall improvement</h4>
-                  <p className="text-xs text-muted-foreground">
-                    12% overall yield improvement from last season
-                  </p>
-                </div>
-              </div>
-            </div>
-            
-            <Button variant="outline" className="w-full mt-4">
-              View Complete Analysis
-            </Button>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+        )}
       </div>
       
       <NavBar />
