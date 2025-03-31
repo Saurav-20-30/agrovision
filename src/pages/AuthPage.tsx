@@ -99,13 +99,6 @@ const AuthPage = () => {
                         maxLength={6}
                         value={otp}
                         onChange={setOtp}
-                        render={({ slots }) => (
-                          <InputOTPGroup>
-                            {slots.map((slot, index) => (
-                              <InputOTPSlot key={index} {...slot} index={index} />
-                            ))}
-                          </InputOTPGroup>
-                        )}
                       />
                     </div>
                   </div>
