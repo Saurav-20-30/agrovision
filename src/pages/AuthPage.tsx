@@ -18,22 +18,62 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { message-square, phone } from "lucide-react";
 
 const AuthPage = () => {
   const navigate = useNavigate();
   const [step, setStep] = useState<"phone" | "otp">("phone");
   const [phoneNumber, setPhoneNumber] = useState("");
   const [otp, setOtp] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handlePhoneSubmit = (e: React.FormEvent) => {
+  // Generate a random 6-digit OTP
+  const generateOTP = () => {
+    return Math.floor(100000 + Math.random() * 900000).toString();
+  };
+
+  const sendSMSOTP = async (phoneNum: string) => {
+    setIsLoading(true);
+    
+    // In a real implementation, you would call your SMS API here
+    // Example:
+    // const response = await fetch('your-sms-api-endpoint', {
+    //   method: 'POST',
+    //   headers: { 'Content-Type': 'application/json' },
+    //   body: JSON.stringify({ 
+    //     phoneNumber: phoneNum,
+    //     message: `Your AgroVision AI verification code is: ${generatedOTP}` 
+    //   })
+    // });
+    
+    // For demo purposes, we're simulating the API call
+    const generatedOTP = generateOTP();
+    console.log(`OTP sent to ${phoneNum}: ${generatedOTP}`);
+    
+    // Simulate API delay
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    
+    setIsLoading(false);
+    return true;
+  };
+
+  const handlePhoneSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!phoneNumber || phoneNumber.length < 10) {
       toast.error("Please enter a valid phone number");
       return;
     }
-    // In a real app, this would trigger an API call to send OTP
-    toast.success("OTP sent to your phone");
-    setStep("otp");
+    
+    try {
+      const success = await sendSMSOTP(phoneNumber);
+      if (success) {
+        toast.success("OTP sent to your phone");
+        setStep("otp");
+      }
+    } catch (error) {
+      console.error("Error sending OTP:", error);
+      toast.error("Failed to send OTP. Please try again.");
+    }
   };
 
   const handleOtpSubmit = (e: React.FormEvent) => {
@@ -42,9 +82,36 @@ const AuthPage = () => {
       toast.error("Please enter a valid OTP");
       return;
     }
-    // In a real app, this would verify the OTP with the backend
-    toast.success("Login successful");
-    navigate("/");
+    
+    setIsLoading(true);
+    
+    // In a real implementation, you would verify the OTP with your backend
+    // Example:
+    // const response = await fetch('your-verification-endpoint', {
+    //   method: 'POST',
+    //   headers: { 'Content-Type': 'application/json' },
+    //   body: JSON.stringify({ phoneNumber, otp })
+    // });
+    
+    // Simulate verification delay
+    setTimeout(() => {
+      setIsLoading(false);
+      // In this demo we're accepting any 6-digit OTP
+      toast.success("Login successful");
+      navigate("/");
+    }, 1500);
+  };
+
+  const handleResendOTP = async () => {
+    try {
+      const success = await sendSMSOTP(phoneNumber);
+      if (success) {
+        toast.success("New OTP sent to your phone");
+      }
+    } catch (error) {
+      console.error("Error resending OTP:", error);
+      toast.error("Failed to resend OTP. Please try again.");
+    }
   };
 
   return (
@@ -63,20 +130,26 @@ const AuthPage = () => {
                 <div className="space-y-4">
                   <div className="space-y-2">
                     <Label htmlFor="phone">Phone Number</Label>
-                    <Input
-                      id="phone"
-                      type="tel"
-                      placeholder="Enter your mobile number"
-                      value={phoneNumber}
-                      onChange={(e) => setPhoneNumber(e.target.value)}
-                      required
-                    />
+                    <div className="flex items-center relative">
+                      <div className="absolute left-3 text-gray-500">
+                        <phone className="h-5 w-5" />
+                      </div>
+                      <Input
+                        id="phone"
+                        type="tel"
+                        placeholder="Enter your mobile number"
+                        value={phoneNumber}
+                        onChange={(e) => setPhoneNumber(e.target.value)}
+                        className="pl-10"
+                        required
+                      />
+                    </div>
                   </div>
                 </div>
               </CardContent>
               <CardFooter>
-                <Button className="w-full" type="submit">
-                  Send OTP
+                <Button className="w-full" type="submit" disabled={isLoading}>
+                  {isLoading ? "Sending..." : "Send OTP"}
                 </Button>
               </CardFooter>
             </form>
@@ -106,18 +179,29 @@ const AuthPage = () => {
                         </InputOTPGroup>
                       </InputOTP>
                     </div>
+                    <div className="text-center mt-2">
+                      <button
+                        type="button"
+                        onClick={handleResendOTP}
+                        className="text-sm text-blue-600 hover:underline"
+                        disabled={isLoading}
+                      >
+                        {isLoading ? "Sending..." : "Resend OTP"}
+                      </button>
+                    </div>
                   </div>
                 </div>
               </CardContent>
               <CardFooter className="flex flex-col space-y-2">
-                <Button className="w-full" type="submit">
-                  Verify
+                <Button className="w-full" type="submit" disabled={isLoading}>
+                  {isLoading ? "Verifying..." : "Verify"}
                 </Button>
                 <Button
                   variant="outline"
                   type="button"
                   onClick={() => setStep("phone")}
                   className="w-full"
+                  disabled={isLoading}
                 >
                   Back
                 </Button>
