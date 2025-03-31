@@ -27,6 +27,7 @@ const App = () => (
           <Route path="/scan" element={<ScanPage />} />
           <Route path="/soil" element={<SoilAnalysisPage />} />
           <Route path="/treatment/:issueId" element={<TreatmentPage />} />
+          <Route path="/treatment/guide" element={<TreatmentPage />} />
           <Route path="/yield" element={<YieldPage />} />
           <Route path="/settings" element={<SettingsPage />} />
           <Route path="/chat" element={<ChatPage />} />
