@@ -18,7 +18,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { message-square, phone } from "lucide-react";
+import { MessageSquare, Phone } from "lucide-react";
 
 const AuthPage = () => {
   const navigate = useNavigate();
@@ -132,7 +132,7 @@ const AuthPage = () => {
                     <Label htmlFor="phone">Phone Number</Label>
                     <div className="flex items-center relative">
                       <div className="absolute left-3 text-gray-500">
-                        <phone className="h-5 w-5" />
+                        <Phone className="h-5 w-5" />
                       </div>
                       <Input
                         id="phone"
